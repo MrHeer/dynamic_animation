@@ -1,7 +1,6 @@
 name: dynamic_animation
 description: This is a dynamic animation SDK
 version: 0.0.1
-author: He Linming
 repository: https://github.com/MrHeer/dynamic_animation
 publish_to: https://pub.dev
 

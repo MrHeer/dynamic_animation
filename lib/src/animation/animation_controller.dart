@@ -11,9 +11,6 @@ const physics.SpringDescription defaultSpringDescription =
   damping: 1.0,
 );
 
-final Simulation defaultSimulation =
-    SpringSimulation(defaultSpringDescription, 0, 1, 0);
-
 /// A controller for an animation.
 ///
 /// This class lets you perform tasks such as:
@@ -102,9 +99,18 @@ class AnimationController extends animation.AnimationController {
             animationBehavior: animationBehavior,
             vsync: vsync);
 
-  /// Dynamically-updatable targe with a simulation.
-  TickerFuture dynamicAnimateTo(double target, {Simulation? simulation}) {
-    Simulation _simulation = simulation ?? defaultSimulation;
-    return animateWith(_simulation.update(value, target, velocity));
+  /// Dynamically-updatable animate.
+  TickerFuture dynamicAnimateWith(
+      {double? value,
+      double? target,
+      double? velocity,
+      Simulation? simulation}) {
+    final _simulation =
+        simulation ?? SpringSimulation(defaultSpringDescription, 0, 1, 0);
+    _simulation.update(
+        start: value ?? this.value,
+        end: target,
+        velocity: velocity ?? this.velocity);
+    return animateWith(_simulation);
   }
 }

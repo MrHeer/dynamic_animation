@@ -1,4 +1,4 @@
-import 'package:flutter/physics.dart' as physics show Simulation;
+import 'package:flutter/physics.dart' as physics show Simulation, Tolerance;
 
 /// The base class for all simulations.
 ///
@@ -26,6 +26,12 @@ import 'package:flutter/physics.dart' as physics show Simulation;
 /// should establish a convention and use that convention consistently with all
 /// related objects.
 abstract class Simulation extends physics.Simulation {
-  /// This method used to update [Simulation].
-  Simulation update(double start, double end, double velocity);
+  /// Initializes the [tolerance] field for subclasses.
+  Simulation({tolerance = physics.Tolerance.defaultTolerance});
+
+  /// This method used to update this [Simulation] with `start`, `end` and `velocity`.
+  void update({double? start, double? end, double? velocity});
+
+  /// This method used to update this [Simulation].
+  void updateSimulation();
 }

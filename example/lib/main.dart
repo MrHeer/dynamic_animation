@@ -21,13 +21,14 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   bool _init = false;
   late double _x;
   late double _y;
-  late Simulation _simulation;
+  late SpringSimulation _simulationX;
+  late SpringSimulation _simulationY;
   late final AnimationController _controllerX;
   late final AnimationController _controllerY;
 
   void _runAnimation(double x, double y) {
-    _controllerX.dynamicAnimateTo(x, simulation: _simulation);
-    _controllerY.dynamicAnimateTo(y, simulation: _simulation);
+    _controllerX.dynamicAnimateWith(target: x, simulation: _simulationX);
+    _controllerY.dynamicAnimateWith(target: y, simulation: _simulationY);
   }
 
   void _handleChange({double? mass, double? stiffness, double? damping}) {
@@ -35,24 +36,22 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
       _mass = mass ?? _mass;
       _stiffness = stiffness ?? _stiffness;
       _damping = damping ?? _damping;
-      _simulation = SpringSimulation(
-          SpringDescription(
-              mass: _mass, stiffness: _stiffness, damping: _damping),
-          0,
-          1,
-          0);
+      final _spring = SpringDescription(
+          mass: _mass, stiffness: _stiffness, damping: _damping);
+      _simulationX.updateSpring(_spring);
+      _simulationY.updateSpring(_spring);
+      _controllerX.dynamicAnimateWith(simulation: _simulationX);
+      _controllerY.dynamicAnimateWith(simulation: _simulationY);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _simulation = SpringSimulation(
-        SpringDescription(
-            mass: _mass, stiffness: _stiffness, damping: _damping),
-        0,
-        1,
-        0);
+    final _spring = SpringDescription(
+        mass: _mass, stiffness: _stiffness, damping: _damping);
+    _simulationX = SpringSimulation(_spring, 0, 1, 0);
+    _simulationY = SpringSimulation(_spring, 0, 1, 0);
     _controllerX = AnimationController.unbounded(vsync: this);
     _controllerY = AnimationController.unbounded(vsync: this);
 
@@ -119,7 +118,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
                       ),
                       Slider(
                         value: _mass,
-                        min: 0,
+                        min: 1,
                         max: 100,
                         onChanged: (value) {
                           _handleChange(mass: value);

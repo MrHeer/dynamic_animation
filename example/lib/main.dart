@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide AnimationController, Simulation;
 import 'package:flutter/physics.dart' hide Simulation, SpringSimulation;
 
@@ -21,6 +22,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   bool _init = false;
   late double _x;
   late double _y;
+  late SpringDescription _spring;
   late SpringSimulation _simulationX;
   late SpringSimulation _simulationY;
   late final AnimationController _controllerX;
@@ -32,11 +34,17 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   }
 
   void _handleChange({double? mass, double? stiffness, double? damping}) {
+    _updateSpring(mass: mass, stiffness: stiffness, damping: damping);
+    _controllerX.dynamicAnimateWith(simulation: _simulationX);
+    _controllerY.dynamicAnimateWith(simulation: _simulationY);
+  }
+
+  void _updateSpring({double? mass, double? stiffness, double? damping}) {
     setState(() {
       _mass = mass ?? _mass;
       _stiffness = stiffness ?? _stiffness;
       _damping = damping ?? _damping;
-      final _spring = SpringDescription(
+      _spring = SpringDescription(
           mass: _mass, stiffness: _stiffness, damping: _damping);
       _simulationX.updateSpring(_spring);
       _simulationY.updateSpring(_spring);
@@ -48,7 +56,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   @override
   void initState() {
     super.initState();
-    final _spring = SpringDescription(
+    _spring = SpringDescription(
         mass: _mass, stiffness: _stiffness, damping: _damping);
     _simulationX = SpringSimulation(_spring, 0, 1, 0);
     _simulationY = SpringSimulation(_spring, 0, 1, 0);
@@ -96,8 +104,17 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
         Positioned(
           left: _x - 64,
           top: _y - 64,
-          child: FlutterLogo(
-            size: 128,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              _controllerX.value += details.delta.dx;
+              _controllerY.value += details.delta.dy;
+            },
+            onPanEnd: (details) {
+              // TODO
+            },
+            child: FlutterLogo(
+              size: 128,
+            ),
           ),
         ),
         Positioned(
@@ -135,8 +152,8 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
                               'stiffness: ' + _stiffness.toStringAsFixed(2))),
                       Slider(
                         value: _stiffness,
-                        min: 0,
-                        max: 1,
+                        min: 1,
+                        max: 10,
                         onChanged: (value) {
                           _handleChange(stiffness: value);
                         },
@@ -152,8 +169,8 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
                               Text('damping: ' + _damping.toStringAsFixed(2))),
                       Slider(
                         value: _damping,
-                        min: 0,
-                        max: 1,
+                        min: 1,
+                        max: 10,
                         onChanged: (value) {
                           _handleChange(damping: value);
                         },

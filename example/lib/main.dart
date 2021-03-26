@@ -87,112 +87,114 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
       _init = true;
     }
     return Container(
+        color: Colors.white,
         child: Stack(
-      children: [
-        GestureDetector(
-          onTapDown: (details) {
-            _runAnimation(details.localPosition.dx, details.localPosition.dy);
-          },
-        ),
-        Positioned(
-          left: _x - 64,
-          top: _y - 64,
-          child: GestureDetector(
-            onPanStart: (details) {
-              _controllerX.stop();
-              _controllerY.stop();
-            },
-            onPanUpdate: (details) {
-              setState(() {
-                _x += details.delta.dx;
-                _y += details.delta.dy;
-              });
-            },
-            onPanEnd: (details) {
-              double dx = details.velocity.pixelsPerSecond.dx / 10;
-              double dy = details.velocity.pixelsPerSecond.dy / 10;
-              _controllerX.dynamicAnimateWith(
-                  value: _x,
-                  target: _x + dx,
-                  velocity: dx,
-                  simulation: _simulationX);
-              _controllerY.dynamicAnimateWith(
-                  value: _y,
-                  target: _y + dy,
-                  velocity: dy,
-                  simulation: _simulationY);
-            },
-            child: FlutterLogo(
-              size: 128,
+          children: [
+            GestureDetector(
+              onTapDown: (details) {
+                _runAnimation(
+                    details.localPosition.dx, details.localPosition.dy);
+              },
             ),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          top: 0,
-          child: Card(
-            margin: EdgeInsets.all(10),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        child: Text('mass: ' + _mass.toStringAsFixed(2)),
-                      ),
-                      Slider(
-                        value: _mass,
-                        min: 1,
-                        max: 100,
-                        onChanged: (value) {
-                          _updateSpring(mass: value);
-                        },
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                          width: 100,
-                          child: Text(
-                              'stiffness: ' + _stiffness.toStringAsFixed(2))),
-                      Slider(
-                        value: _stiffness,
-                        min: 1,
-                        max: 10,
-                        onChanged: (value) {
-                          _updateSpring(stiffness: value);
-                        },
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                          width: 100,
-                          child:
-                              Text('damping: ' + _damping.toStringAsFixed(2))),
-                      Slider(
-                        value: _damping,
-                        min: 1,
-                        max: 10,
-                        onChanged: (value) {
-                          _updateSpring(damping: value);
-                        },
-                      )
-                    ],
-                  )
-                ],
+            Positioned(
+              left: _x - 64,
+              top: _y - 64,
+              child: GestureDetector(
+                onPanStart: (details) {
+                  _controllerX.stop();
+                  _controllerY.stop();
+                },
+                onPanUpdate: (details) {
+                  setState(() {
+                    _x += details.delta.dx;
+                    _y += details.delta.dy;
+                  });
+                },
+                onPanEnd: (details) {
+                  double dx = details.velocity.pixelsPerSecond.dx;
+                  double dy = details.velocity.pixelsPerSecond.dy;
+                  _controllerX.dynamicAnimateWith(
+                      value: _x,
+                      target: _x + dx / 10,
+                      velocity: dx,
+                      simulation: _simulationX);
+                  _controllerY.dynamicAnimateWith(
+                      value: _y,
+                      target: _y + dy / 10,
+                      velocity: dy,
+                      simulation: _simulationY);
+                },
+                child: FlutterLogo(
+                  size: 128,
+                ),
               ),
             ),
-          ),
-        )
-      ],
-    ));
+            Positioned(
+              left: 0,
+              top: 0,
+              child: Card(
+                margin: EdgeInsets.all(10),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: Text('mass: ' + _mass.toStringAsFixed(2)),
+                          ),
+                          Slider(
+                            value: _mass,
+                            min: 1,
+                            max: 100,
+                            onChanged: (value) {
+                              _updateSpring(mass: value);
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                              width: 100,
+                              child: Text('stiffness: ' +
+                                  _stiffness.toStringAsFixed(2))),
+                          Slider(
+                            value: _stiffness,
+                            min: 1,
+                            max: 10,
+                            onChanged: (value) {
+                              _updateSpring(stiffness: value);
+                            },
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                              width: 100,
+                              child: Text(
+                                  'damping: ' + _damping.toStringAsFixed(2))),
+                          Slider(
+                            value: _damping,
+                            min: 1,
+                            max: 10,
+                            onChanged: (value) {
+                              _updateSpring(damping: value);
+                            },
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ));
   }
 }

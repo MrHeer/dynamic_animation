@@ -27,9 +27,11 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   late final AnimationController _controllerX;
   late final AnimationController _controllerY;
 
-  void _runAnimation(double x, double y) {
-    _controllerX.dynamicAnimateWith(target: x, simulation: _simulationX);
-    _controllerY.dynamicAnimateWith(target: y, simulation: _simulationY);
+  void _runAnimation({Offset? target}) {
+    _controllerX.dynamicAnimateWith(
+        target: target?.dx, simulation: _simulationX);
+    _controllerY.dynamicAnimateWith(
+        target: target?.dy, simulation: _simulationY);
   }
 
   void _updateSpring({double? mass, double? stiffness, double? damping}) {
@@ -41,8 +43,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
           mass: _mass, stiffness: _stiffness, damping: _damping);
       _simulationX.updateSpring(_spring);
       _simulationY.updateSpring(_spring);
-      _controllerX.dynamicAnimateWith(simulation: _simulationX);
-      _controllerY.dynamicAnimateWith(simulation: _simulationY);
+      _runAnimation();
     });
   }
 
@@ -80,10 +81,8 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   Widget build(BuildContext context) {
     if (!_init) {
       final size = MediaQuery.of(context).size;
-      _x = size.width / 2;
-      _y = size.height / 2;
-      _controllerX.value = _x;
-      _controllerY.value = _y;
+      _controllerX.value = size.width / 2;
+      _controllerY.value = size.height / 2;
       _init = true;
     }
     return Container(
@@ -92,8 +91,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
           children: [
             GestureDetector(
               onTapDown: (details) {
-                _runAnimation(
-                    details.localPosition.dx, details.localPosition.dy);
+                _runAnimation(target: details.localPosition);
               },
             ),
             Positioned(

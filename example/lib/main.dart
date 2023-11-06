@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart' hide AnimationController, Simulation;
-import 'package:flutter/physics.dart' hide Simulation, SpringSimulation;
-
-import 'package:dynamic_animation/animation.dart';
-import 'package:dynamic_animation/physics.dart';
+import 'package:flutter/material.dart';
+import 'package:dynamic_animation/extensions.dart';
 
 main() {
   runApp(MaterialApp(home: DynamicAnimationDemo()));
 }
+
+const _logoSize = 128;
 
 class DynamicAnimationDemo extends StatefulWidget {
   @override
@@ -15,58 +14,49 @@ class DynamicAnimationDemo extends StatefulWidget {
 
 class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
     with TickerProviderStateMixin {
-  double _mass = 30.0;
-  double _stiffness = 1.0;
-  double _damping = 1.0;
-  bool _init = false;
-  late double _x;
-  late double _y;
-  late SpringDescription _spring;
-  late SpringSimulation _simulationX;
-  late SpringSimulation _simulationY;
-  late final AnimationController _controllerX;
-  late final AnimationController _controllerY;
+  var _mass = 30.0;
+  var _stiffness = 1.0;
+  var _damping = 1.0;
+  var _init = false;
+  late final AnimationController _controllerX =
+      AnimationController.unbounded(vsync: this);
+  late final AnimationController _controllerY =
+      AnimationController.unbounded(vsync: this);
 
-  void _runAnimation({Offset? target}) {
+  get _spring => SpringDescription(
+        mass: _mass,
+        stiffness: _stiffness,
+        damping: _damping,
+      );
+
+  void _runAnimation({
+    required Offset target,
+    Offset? value,
+    Offset? velocity,
+  }) {
     _controllerX.dynamicAnimateWith(
-        target: target?.dx, simulation: _simulationX);
+      target: target.dx,
+      value: value?.dx,
+      velocity: velocity?.dx,
+      springDescription: _spring,
+    );
     _controllerY.dynamicAnimateWith(
-        target: target?.dy, simulation: _simulationY);
+      target: target.dy,
+      value: value?.dy,
+      velocity: velocity?.dy,
+      springDescription: _spring,
+    );
   }
 
-  void _updateSpring({double? mass, double? stiffness, double? damping}) {
+  void _updateSpringProps({
+    double? mass,
+    double? stiffness,
+    double? damping,
+  }) {
     setState(() {
       _mass = mass ?? _mass;
       _stiffness = stiffness ?? _stiffness;
       _damping = damping ?? _damping;
-      _spring = SpringDescription(
-          mass: _mass, stiffness: _stiffness, damping: _damping);
-      _simulationX.updateSpring(_spring);
-      _simulationY.updateSpring(_spring);
-      _runAnimation();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _spring = SpringDescription(
-        mass: _mass, stiffness: _stiffness, damping: _damping);
-    _simulationX = SpringSimulation(_spring, 0, 1, 0);
-    _simulationY = SpringSimulation(_spring, 0, 1, 0);
-    _controllerX = AnimationController.unbounded(vsync: this);
-    _controllerY = AnimationController.unbounded(vsync: this);
-
-    _controllerX.addListener(() {
-      setState(() {
-        _x = _controllerX.value;
-      });
-    });
-
-    _controllerY.addListener(() {
-      setState(() {
-        _y = _controllerY.value;
-      });
     });
   }
 
@@ -85,114 +75,158 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
       _controllerY.value = size.height / 2;
       _init = true;
     }
-    return Container(
-        color: Colors.white,
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTapDown: (details) {
-                _runAnimation(target: details.localPosition);
-              },
-            ),
-            Positioned(
-              left: _x - 64,
-              top: _y - 64,
-              child: GestureDetector(
-                onPanStart: (details) {
-                  _controllerX.stop();
-                  _controllerY.stop();
-                },
-                onPanUpdate: (details) {
-                  setState(() {
-                    _x += details.delta.dx;
-                    _y += details.delta.dy;
-                  });
-                },
-                onPanEnd: (details) {
-                  double dx = details.velocity.pixelsPerSecond.dx;
-                  double dy = details.velocity.pixelsPerSecond.dy;
-                  _controllerX.dynamicAnimateWith(
-                      value: _x,
-                      target: _x + dx / 10,
-                      velocity: dx,
-                      simulation: _simulationX);
-                  _controllerY.dynamicAnimateWith(
-                      value: _y,
-                      target: _y + dy / 10,
-                      velocity: dy,
-                      simulation: _simulationY);
-                },
-                child: FlutterLogo(
-                  size: 128,
+
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+            color: Colors.white,
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTapDown: (details) {
+                    _runAnimation(target: details.localPosition);
+                  },
                 ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Card(
-                margin: EdgeInsets.all(10),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: Text('mass: ' + _mass.toStringAsFixed(2)),
-                          ),
-                          Slider(
-                            value: _mass,
-                            min: 1,
-                            max: 100,
-                            onChanged: (value) {
-                              _updateSpring(mass: value);
-                            },
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                              width: 100,
-                              child: Text('stiffness: ' +
-                                  _stiffness.toStringAsFixed(2))),
-                          Slider(
-                            value: _stiffness,
-                            min: 1,
-                            max: 10,
-                            onChanged: (value) {
-                              _updateSpring(stiffness: value);
-                            },
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                              width: 100,
-                              child: Text(
-                                  'damping: ' + _damping.toStringAsFixed(2))),
-                          Slider(
-                            value: _damping,
-                            min: 1,
-                            max: 10,
-                            onChanged: (value) {
-                              _updateSpring(damping: value);
-                            },
-                          )
-                        ],
-                      )
-                    ],
+                AnimatedBuilder(
+                  animation: Listenable.merge([_controllerX, _controllerY]),
+                  child: GestureDetector(
+                    onPanStart: (details) {
+                      _controllerX.stop();
+                      _controllerY.stop();
+                    },
+                    onPanUpdate: (details) {
+                      setState(() {
+                        _controllerX.value += details.delta.dx;
+                        _controllerY.value += details.delta.dy;
+                      });
+                    },
+                    onPanEnd: (details) {
+                      final dx = details.velocity.pixelsPerSecond.dx;
+                      final dy = details.velocity.pixelsPerSecond.dy;
+                      final target = Offset(
+                        _controllerX.value + dx / 10,
+                        _controllerY.value + dy / 10,
+                      );
+                      final velocity = Offset(dx, dy);
+                      _runAnimation(target: target, velocity: velocity);
+                    },
+                    child: FlutterLogo(
+                      size: 128,
+                    ),
+                  ),
+                  builder: (context, child) => Positioned(
+                    left: _controllerX.value - _logoSize / 2,
+                    top: _controllerY.value - _logoSize / 2,
+                    child: child!,
                   ),
                 ),
+                _SpringController(
+                  mass: _mass,
+                  stiffness: _stiffness,
+                  damping: _damping,
+                  onChange: _updateSpringProps,
+                )
+              ],
+            )),
+      ),
+    );
+  }
+}
+
+class _SpringController extends StatelessWidget {
+  const _SpringController({
+    required this.mass,
+    required this.stiffness,
+    required this.damping,
+    required this.onChange,
+  });
+
+  final double mass;
+  final double stiffness;
+  final double damping;
+  final void Function({
+    required double mass,
+    required double stiffness,
+    required double damping,
+  }) onChange;
+
+  void _valueChangeHandler({
+    double? mass,
+    double? stiffness,
+    double? damping,
+  }) {
+    onChange(
+      mass: mass ?? this.mass,
+      stiffness: stiffness ?? this.stiffness,
+      damping: damping ?? this.damping,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      top: 0,
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: Text('mass: ' + mass.toStringAsFixed(2)),
+                  ),
+                  Slider(
+                    value: mass,
+                    min: 1,
+                    max: 100,
+                    onChanged: (mass) {
+                      _valueChangeHandler(mass: mass);
+                    },
+                  ),
+                ],
               ),
-            )
-          ],
-        ));
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                      width: 100,
+                      child:
+                          Text('stiffness: ' + stiffness.toStringAsFixed(2))),
+                  Slider(
+                    value: stiffness,
+                    min: 1,
+                    max: 10,
+                    onChanged: (stiffness) {
+                      _valueChangeHandler(stiffness: stiffness);
+                    },
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                      width: 100,
+                      child: Text('damping: ' + damping.toStringAsFixed(2))),
+                  Slider(
+                    value: damping,
+                    min: 1,
+                    max: 10,
+                    onChanged: (damping) {
+                      _valueChangeHandler(damping: damping);
+                    },
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

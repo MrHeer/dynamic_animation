@@ -2,11 +2,9 @@ name: dynamic_animation
 description: This is a dynamic animation SDK
 version: 0.0.3
 repository: https://github.com/MrHeer/dynamic_animation
-publish_to: https://pub.dev
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.0.0"
+  sdk: '>=3.1.4 <4.0.0'
 
 dependencies:
   flutter:
@@ -15,6 +13,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -5,7 +5,7 @@ main() {
   runApp(MaterialApp(home: DynamicAnimationDemo()));
 }
 
-const _logoSize = 128;
+const _logoSize = 128.0;
 
 class DynamicAnimationDemo extends StatefulWidget {
   @override
@@ -18,10 +18,8 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   var _stiffness = 1.0;
   var _damping = 1.0;
   var _init = false;
-  late final AnimationController _controllerX =
-      AnimationController.unbounded(vsync: this);
-  late final AnimationController _controllerY =
-      AnimationController.unbounded(vsync: this);
+  late final _controllerX = AnimationController.unbounded(vsync: this);
+  late final _controllerY = AnimationController.unbounded(vsync: this);
 
   get _spring => SpringDescription(
         mass: _mass,
@@ -79,55 +77,32 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
     return Scaffold(
       body: SafeArea(
         child: Container(
-            color: Colors.white,
-            child: Stack(
-              children: [
-                GestureDetector(
-                  onTapDown: (details) {
-                    _runAnimation(target: details.localPosition);
-                  },
+          color: Colors.white,
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTapDown: (details) {
+                  _runAnimation(target: details.localPosition);
+                },
+              ),
+              AnimatedBuilder(
+                animation: Listenable.merge([_controllerX, _controllerY]),
+                child: const FlutterLogo(size: _logoSize),
+                builder: (context, child) => Positioned(
+                  left: _controllerX.value - _logoSize / 2,
+                  top: _controllerY.value - _logoSize / 2,
+                  child: child!,
                 ),
-                AnimatedBuilder(
-                  animation: Listenable.merge([_controllerX, _controllerY]),
-                  child: GestureDetector(
-                    onPanStart: (details) {
-                      _controllerX.stop();
-                      _controllerY.stop();
-                    },
-                    onPanUpdate: (details) {
-                      setState(() {
-                        _controllerX.value += details.delta.dx;
-                        _controllerY.value += details.delta.dy;
-                      });
-                    },
-                    onPanEnd: (details) {
-                      final dx = details.velocity.pixelsPerSecond.dx;
-                      final dy = details.velocity.pixelsPerSecond.dy;
-                      final target = Offset(
-                        _controllerX.value + dx / 10,
-                        _controllerY.value + dy / 10,
-                      );
-                      final velocity = Offset(dx, dy);
-                      _runAnimation(target: target, velocity: velocity);
-                    },
-                    child: FlutterLogo(
-                      size: 128,
-                    ),
-                  ),
-                  builder: (context, child) => Positioned(
-                    left: _controllerX.value - _logoSize / 2,
-                    top: _controllerY.value - _logoSize / 2,
-                    child: child!,
-                  ),
-                ),
-                _SpringController(
-                  mass: _mass,
-                  stiffness: _stiffness,
-                  damping: _damping,
-                  onChange: _updateSpringProps,
-                )
-              ],
-            )),
+              ),
+              _SpringController(
+                mass: _mass,
+                stiffness: _stiffness,
+                damping: _damping,
+                onChange: _updateSpringProps,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

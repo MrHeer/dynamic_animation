@@ -1,6 +1,6 @@
 name: dynamic_animation
 description: This is a dynamic animation SDK
-version: 0.0.3
+version: 0.1.0
 repository: https://github.com/MrHeer/dynamic_animation
 
 environment:

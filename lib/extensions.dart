@@ -1,3 +1,3 @@
-library extensions;
+library;
 
 export 'src/extensions.dart';

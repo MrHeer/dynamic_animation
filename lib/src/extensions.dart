@@ -8,18 +8,20 @@ const SpringDescription defaultSpringDescription = SpringDescription(
 );
 
 extension DynamicAnimation on AnimationController {
-  /// Dynamically-updatable animate.
-  TickerFuture dynamicAnimateWith({
-    required double target,
-    double? value,
+  /// Starts an spring animation from current [from] and [velocity] to the [target].
+  TickerFuture dynamicTo(
+    double target, {
+    double? from,
     double? velocity,
-    SpringDescription? springDescription,
+    SpringDescription springDescription = defaultSpringDescription,
+    Tolerance tolerance = Tolerance.defaultTolerance,
   }) {
     final simulation = SpringSimulation(
-      springDescription ?? defaultSpringDescription,
-      value ?? this.value,
+      springDescription,
+      from ?? value,
       target,
       velocity ?? this.velocity,
+      tolerance: tolerance,
     );
     return animateWith(simulation);
   }

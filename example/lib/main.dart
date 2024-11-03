@@ -1,6 +1,6 @@
 import 'package:example/spring_controller_panel.dart';
 import 'package:flutter/material.dart';
-import 'package:dynamic_animation/extensions.dart';
+import 'package:dynamic_animation/dynamic_animation.dart';
 
 main() {
   runApp(const MaterialApp(home: DynamicAnimationDemo()));

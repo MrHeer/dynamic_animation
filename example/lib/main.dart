@@ -1,15 +1,18 @@
+import 'package:example/spring_controller_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_animation/extensions.dart';
 
 main() {
-  runApp(MaterialApp(home: DynamicAnimationDemo()));
+  runApp(const MaterialApp(home: DynamicAnimationDemo()));
 }
 
 const _logoSize = 128.0;
 
 class DynamicAnimationDemo extends StatefulWidget {
+  const DynamicAnimationDemo({super.key});
+
   @override
-  _DynamicAnimationDemoState createState() => _DynamicAnimationDemoState();
+  State createState() => _DynamicAnimationDemoState();
 }
 
 class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
@@ -17,7 +20,6 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   var _mass = 30.0;
   var _stiffness = 1.0;
   var _damping = 1.0;
-  var _init = false;
   late final _controllerX = AnimationController.unbounded(vsync: this);
   late final _controllerY = AnimationController.unbounded(vsync: this);
 
@@ -27,21 +29,15 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
         damping: _damping,
       );
 
-  void _runAnimation({
-    required Offset target,
-    Offset? value,
-    Offset? velocity,
-  }) {
-    _controllerX.dynamicAnimateWith(
-      target: target.dx,
-      value: value?.dx,
-      velocity: velocity?.dx,
+  void _animateTo(
+    Offset target,
+  ) {
+    _controllerX.dynamicTo(
+      target.dx,
       springDescription: _spring,
     );
-    _controllerY.dynamicAnimateWith(
-      target: target.dy,
-      value: value?.dy,
-      velocity: velocity?.dy,
+    _controllerY.dynamicTo(
+      target.dy,
       springDescription: _spring,
     );
   }
@@ -66,14 +62,15 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (!_init) {
-      final size = MediaQuery.of(context).size;
-      _controllerX.value = size.width / 2;
-      _controllerY.value = size.height / 2;
-      _init = true;
-    }
+  void didChangeDependencies() {
+    final size = MediaQuery.of(context).size;
+    _controllerX.value = size.width / 2;
+    _controllerY.value = size.height / 2;
+    super.didChangeDependencies();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -82,7 +79,7 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
             children: [
               GestureDetector(
                 onTapDown: (details) {
-                  _runAnimation(target: details.localPosition);
+                  _animateTo(details.localPosition);
                 },
               ),
               AnimatedBuilder(
@@ -94,110 +91,12 @@ class _DynamicAnimationDemoState extends State<DynamicAnimationDemo>
                   child: child!,
                 ),
               ),
-              _SpringController(
+              SpringControllerPanel(
                 mass: _mass,
                 stiffness: _stiffness,
                 damping: _damping,
                 onChange: _updateSpringProps,
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SpringController extends StatelessWidget {
-  const _SpringController({
-    required this.mass,
-    required this.stiffness,
-    required this.damping,
-    required this.onChange,
-  });
-
-  final double mass;
-  final double stiffness;
-  final double damping;
-  final void Function({
-    required double mass,
-    required double stiffness,
-    required double damping,
-  }) onChange;
-
-  void _valueChangeHandler({
-    double? mass,
-    double? stiffness,
-    double? damping,
-  }) {
-    onChange(
-      mass: mass ?? this.mass,
-      stiffness: stiffness ?? this.stiffness,
-      damping: damping ?? this.damping,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      top: 0,
-      child: Card(
-        margin: EdgeInsets.all(10),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 100,
-                    child: Text('mass: ' + mass.toStringAsFixed(2)),
-                  ),
-                  Slider(
-                    value: mass,
-                    min: 1,
-                    max: 100,
-                    onChanged: (mass) {
-                      _valueChangeHandler(mass: mass);
-                    },
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                      width: 100,
-                      child:
-                          Text('stiffness: ' + stiffness.toStringAsFixed(2))),
-                  Slider(
-                    value: stiffness,
-                    min: 1,
-                    max: 10,
-                    onChanged: (stiffness) {
-                      _valueChangeHandler(stiffness: stiffness);
-                    },
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                      width: 100,
-                      child: Text('damping: ' + damping.toStringAsFixed(2))),
-                  Slider(
-                    value: damping,
-                    min: 1,
-                    max: 10,
-                    onChanged: (damping) {
-                      _valueChangeHandler(damping: damping);
-                    },
-                  )
-                ],
-              )
             ],
           ),
         ),

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0] - 2024-11-03
+
+- rename `dynamicAnimateWith` to `dynamicTo`
+
 ## [0.1.0] - 2023-11-07
 
 - refactor to extensions

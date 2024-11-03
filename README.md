@@ -1,14 +1,13 @@
-# dynamic_animation
+# Dynamic Animation
 
-This is a dynamic animation SDK
+The `dynamicTo` function is an extension method for `AnimationController`. It initiates a spring-based animation, transitioning from the current state (determined by `from` and `velocity`) to a specified `target` value.
 
-## Getting Started
+## Parameters
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+- `target` (double, required): Defines the destination value.
+- `from` (double, optional): Represents the starting value. If not provided, defaults to the `AnimationController`'s current value.
+- `velocity` (double, optional): Indicates the starting speed. Defaults to the `AnimationController`'s current velocity.
+- `springDescription` (SpringDescription, optional): Characterizes the spring-like behavior. Defaults to `defaultSpringDescription`.
+- `tolerance` (Tolerance, optional): Determines the acceptable deviation. Defaults to `Tolerance.defaultTolerance`.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+In summary, `dynamicTo` provides a convenient way to create spring animations on an `AnimationController`, allowing for easy target specification and optional customization of starting state and spring behavior parameters.

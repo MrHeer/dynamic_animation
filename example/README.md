@@ -1,4 +1,4 @@
-# example
+# Dynamic Animation
 
 This is a example for dynamic animation SDK
 
